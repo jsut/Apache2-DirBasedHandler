@@ -1,0 +1,22 @@
+---
+name: Apache2-DirBasedHandler
+version: 0.01
+author:
+  - Adam Prime (adam.prime@utoronto.ca)
+abstract: Directory based Location Handler helper
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Apache2::Request: 2
+  mod_perl2: 2
+build_requires:
+  Apache::Test: 1.12
+provides:
+  Apache2::DirBasedHandler:
+    file: lib/Apache2/DirBasedHandler.pm
+    version: 0.01
+generated_by: Module::Build version 0.2808
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
