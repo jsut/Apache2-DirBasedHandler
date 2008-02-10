@@ -9,7 +9,7 @@ use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(:common);
 use Apache2::Request ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $Debug = 0;
 
 =head1 NAME

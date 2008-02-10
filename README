@@ -1,72 +1,92 @@
 NAME
     Apache2::DirBasedHandler - Directory based Location Handler helper
 
-VERSION
-    version 0.01
-
 SYNOPSIS
-    package My::Thingy
+      package My::Thingy
 
-    use strict use Apache2::DirBasedHandler our @ISA =
-    qw(Apache2::DirBasedHandler); use Apache2::Const -compile =>
-    qw(:common);
+      use strict
+      use Apache2::DirBasedHandler
+      our @ISA = qw(Apache2::DirBasedHandler);
+      use Apache2::Const -compile => qw(:common);
 
-    sub index { my $self = shift; my ($r,$uri_args,$args) = @_;
+      sub index {
+          my $self = shift;
+          my ($r,$uri_args,$args) = @_;
 
-        if (@$uri_args) {
-            return Apache2::Const::NOT_FOUND;
-        }
+          if (@$uri_args) {
+              return Apache2::Const::NOT_FOUND;
+          }
 
-        return (
-            Apache2::Const::OK,
-            qq[this is the index],
-            qq[text/plain; charset=utf-8]
-        );
-    }
+          return (
+              Apache2::Const::OK,
+              qq[this is the index],
+              qq[text/plain; charset=utf-8]
+          );
+      }
 
-    sub super_page { my $self = shift; my ($r,$uri_args,$args) = @_;
+      sub super_page {
+          my $self = shift;
+          my ($r,$uri_args,$args) = @_;
 
-        return (
-            Apache2::Const::OK,
-            qq[this is $location/super and all it's contents],
-            qq[text/plain; charset=utf-8]
-        );
-    }
+          return (
+              Apache2::Const::OK,
+              qq[this is $location/super and all it's contents],
+              qq[text/plain; charset=utf-8]
+          );
+      }
 
-    sub super_dooper_page { my $self = shift; my ($r,$uri_args,$args) = @_;
+      sub super_dooper_page {
+          my $self = shift;
+          my ($r,$uri_args,$args) = @_;
 
-        return (
-            Apache2::Const::OK,
-            qq[this is $location/super/dooper and all it's contents],
-            qq[text/plain; charset=utf-8]
-        );
-    }
+          return (
+              Apache2::Const::OK,
+              qq[this is $location/super/dooper and all it's contents],
+              qq[text/plain; charset=utf-8]
+          );
+      }
 
-    1;
+      1;
 
 DESCRIPTION
     This module is designed to allow people to more quickly implement uri to
-    function style handlers
+    function style handlers. This module is intended to be subclassed.
+
+    A request for
+
+      $r->location . qq[/foo/bar/baz/]
+
+    will be served by the first of the following functions with is defined
+
+      foo_bar_baz_page
+      foo_bar_page
+      foo_page
+      index
 
   handler
-    the uri is cut up into bits, then the first argument is used to
-    determine what page the user is after, so a function is called based on
-    that argument. The rest of the uri, the request object, and all our
-    template crap are then passed into that function. If there is no uri, a
-    base function called index_page is called (which you really want to
-    subclass)
+    "handler" is the guts of DirBasedHandler. It provides the basic
+    structure of the modules, turning the request uri into an array, which
+    is then turned into possible function calls.
 
   init
-    The init function is used to stuff other things into the page function
-    calls. it should probably return a hash reference to be the most useful.
+    "init" is used to include objects or data you want to be passed into
+    your page functions. To be most useful it should return a hash
+    reference. The default implementation returns a reference to an empty
+    hash.
 
   parse_uri
-    takes an Apache::RequestRec (or derived) object, and returns a reference
-    to an array of all the non-slash parts of the uri. It strips repeated
-    slashes in the same manner that they would be stripped if you do a
-    request for static content
+    "parse_uri" takes an Apache::RequestRec (or derived) object, and returns
+    a reference to an array of all the non-slash parts of the uri. It strips
+    repeated slashes in the same manner that they would be stripped if you
+    do a request for static content.
+
+  uri_to_function
+    "uri_to_function" converts an Apache2::RequestRec (or derived) object
+    and an array reference and returns and returns the name of a function to
+    handle the request it's arguments describe.
 
   index
-    index is the function called when someone requests the absolute root of
-    the location you are talking about
+    "index" handles requests for $r->location, and any requests that have no
+    other functions defined to handle them. You must subclass it (or look
+    silly)
 
