@@ -1,7 +1,6 @@
 package Apache2::DirBasedHandler;
 
 use strict;
-use warnings;
 
 use Apache2::Response ();
 use Apache2::RequestUtil ();
@@ -10,78 +9,82 @@ use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(:common);
 use Apache2::Request ();
 
+our $VERSION = '0.01';
+our $Debug = 0;
+
 =head1 NAME
 
 Apache2::DirBasedHandler - Directory based Location Handler helper
 
-=head1 VERSION
-
-version 0.01
-
-=cut
-
-our $VERSION = '0.01';
-
 =head1 SYNOPSIS
 
-package My::Thingy
+  package My::Thingy
 
-use strict
-use Apache2::DirBasedHandler
-our @ISA = qw(Apache2::DirBasedHandler);
-use Apache2::Const -compile => qw(:common);
+  use strict
+  use Apache2::DirBasedHandler
+  our @ISA = qw(Apache2::DirBasedHandler);
+  use Apache2::Const -compile => qw(:common);
 
-sub index {
-    my $self = shift;
-    my ($r,$uri_args,$args) = @_;
+  sub index {
+      my $self = shift;
+      my ($r,$uri_args,$args) = @_;
 
-    if (@$uri_args) {
-        return Apache2::Const::NOT_FOUND;
-    }
+      if (@$uri_args) {
+          return Apache2::Const::NOT_FOUND;
+      }
 
-    return (
-        Apache2::Const::OK,
-        qq[this is the index],
-        qq[text/plain; charset=utf-8]
-    );
-}
+      return (
+          Apache2::Const::OK,
+          qq[this is the index],
+          qq[text/plain; charset=utf-8]
+      );
+  }
 
-sub super_page {
-    my $self = shift;
-    my ($r,$uri_args,$args) = @_;
+  sub super_page {
+      my $self = shift;
+      my ($r,$uri_args,$args) = @_;
 
-    return (
-        Apache2::Const::OK,
-        qq[this is $location/super and all it's contents],
-        qq[text/plain; charset=utf-8]
-    );
-}
+      return (
+          Apache2::Const::OK,
+          qq[this is $location/super and all it's contents],
+          qq[text/plain; charset=utf-8]
+      );
+  }
 
-sub super_dooper_page {
-    my $self = shift;
-    my ($r,$uri_args,$args) = @_;
+  sub super_dooper_page {
+      my $self = shift;
+      my ($r,$uri_args,$args) = @_;
 
-    return (
-        Apache2::Const::OK,
-        qq[this is $location/super/dooper and all it's contents],
-        qq[text/plain; charset=utf-8]
-    );
-}
+      return (
+          Apache2::Const::OK,
+          qq[this is $location/super/dooper and all it's contents],
+          qq[text/plain; charset=utf-8]
+      );
+  }
 
-1;
+  1;
 
 =head1 DESCRIPTION
 
 This module is designed to allow people to more quickly implement uri to function
-style handlers
+style handlers.  This module is intended to be subclassed.
+
+A request for 
+
+  $r->location . qq[/foo/bar/baz/]
+
+will be served by the first of the following functions with is defined
+
+  foo_bar_baz_page
+  foo_bar_page
+  foo_page
+  index
 
 =head2 handler
 
-the uri is cut up into bits, then the first argument is used to determine what
-page the user is after, so a function is called based on that argument.  The
-rest of the uri, the request object, and all our template crap are then passed
-into that function.  If there is no uri, a base function called index_page is
-called (which you really want to subclass)
+C<handler> is the guts of DirBasedHandler.  It provides the basic structure of the
+modules, turning the request uri into an array, which is then turned into possible
+function calls.  
 
 =cut
 
@@ -96,16 +99,16 @@ sub handler :method {
     my $uri_args = [];
     if (@$uri_bits) {
         while (@$uri_bits) {
-            my $try_function = join('_', @$uri_bits) . qq[_page];
+            my $try_function = $self->uri_to_function($r,$uri_bits);
             
-            $r->warn(qq[trying $try_function]);
+            $Debug && $r->warn(qq[trying $try_function]);
             if ($self->can($try_function)) {
-                $r->warn(qq[$try_function works!]);
+                $Debug && $r->warn(qq[$try_function works!]);
                 $function = $try_function;
                 last;
             }
             else {
-                $r->warn(qq[$try_function not found]);
+                $Debug && $r->warn(qq[$try_function not found]);
                 unshift @$uri_args, pop @$uri_bits;
             }
         }
@@ -116,11 +119,11 @@ sub handler :method {
     }
    
     if (!$function) {
-        $r->warn(qq[i do not know what to do with ]. $r->uri);
+        $Debug && $r->warn(qq[i do not know what to do with ]. $r->uri);
         return Apache2::Const::NOT_FOUND;
     }
     
-    $r->warn(qq[calling $function with path_args (] . join(',',@$uri_args).qq[)]);
+    $Debug && $r->warn(qq[calling $function with path_args (] . join(',',@$uri_args).qq[)]);
     my ($status,$page_out,$content_type) =
         $self->$function($r,$uri_args,$args);
 
@@ -138,8 +141,9 @@ sub handler :method {
 
 =head2 init 
 
-The init function is used to stuff other things into the page function calls.
-it should probably return a hash reference to be the most useful.
+C<init> is used to include objects or data you want to be passed into 
+your page functions.  To be most useful it should return a hash reference. 
+The default implementation returns a reference to an empty hash.
 
 =cut
 
@@ -150,9 +154,9 @@ sub init {
 
 =head2 parse_uri
 
-takes an Apache::RequestRec (or derived) object, and returns a reference to an
+C<parse_uri> takes an Apache::RequestRec (or derived) object, and returns a reference to an
 array of all the non-slash parts of the uri.  It strips repeated slashes in the 
-same manner that they would be stripped if you do a request for static content
+same manner that they would be stripped if you do a request for static content.
 
 =cut
 
@@ -168,10 +172,25 @@ sub parse_uri {
     return \@split_uri;
 }
 
+=head2 uri_to_function
+
+C<uri_to_function> converts an Apache2::RequestRec (or derived) object and an
+array reference and returns and returns the name of a function to handle the
+request it's arguments describe.
+
+=cut
+
+sub uri_to_function {
+    my ($self) = shift;
+    my ($r,$uri_bits) = @_;
+
+    return join('_', @$uri_bits) . qq[_page];
+}
+
 =head2 index
 
-index is the function called when someone requests the absolute root of the
-location you are talking about
+C<index> handles requests for $r->location, and any requests that have no 
+other functions defined to handle them.  You must subclass it (or look silly)
 
 =cut
 
