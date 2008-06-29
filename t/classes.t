@@ -9,9 +9,9 @@ plan tests => 8, need_lwp;
 
 base: {
     my $res = GET '/dbh/';
-    ok( t_cmp($res->content, qq[you might want to override "index"], "index request - DirBasedHandler" ));
+    ok( t_cmp($res->content, qq[you might want to override "root_index"], "index request - DirBasedHandler" ));
     $res = GET '/dbh/haha/funny';
-    ok( t_cmp($res->content, qq[you might want to override "index"], "subdir request - DirBasedHandler" ));
+    ok( t_cmp($res->content, qq[you might want to override "root_index"], "subdir request - DirBasedHandler" ));
 }
 
 thingy: {

@@ -1,6 +1,6 @@
 ---
 name: Apache2-DirBasedHandler
-version: 0.02
+version: 0.03
 author:
   - Adam Prime (adam.prime@utoronto.ca)
 abstract: Directory based Location Handler helper
@@ -15,7 +15,7 @@ build_requires:
 provides:
   Apache2::DirBasedHandler:
     file: lib/Apache2/DirBasedHandler.pm
-    version: 0.02
+    version: 0.03
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

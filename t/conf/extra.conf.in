@@ -5,13 +5,13 @@ PerlModule My::Thingy
 PerlModule Apache2::DirBasedHandler
 
 Alias /thingy @DocumentRoot@
-<Location /thingy>
+<Location /thingy/>
     SetHandler modperl
     PerlResponseHandler My::Thingy
 </Location>
 
 Alias /dbh @DocumentRoot@
-<Location /dbh>
+<Location /dbh/>
     SetHandler modperl
     PerlResponseHandler Apache2::DirBasedHandler
 </Location>

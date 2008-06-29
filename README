@@ -1,6 +1,9 @@
 NAME
     Apache2::DirBasedHandler - Directory based Location Handler helper
 
+VERSION
+    This documentation refers to <Apache2::DirBasedHandler> version 0.03
+
 SYNOPSIS
       package My::Thingy
 
@@ -9,7 +12,7 @@ SYNOPSIS
       our @ISA = qw(Apache2::DirBasedHandler);
       use Apache2::Const -compile => qw(:common);
 
-      sub index {
+      sub root_index {
           my $self = shift;
           my ($r,$uri_args,$args) = @_;
 
@@ -61,12 +64,16 @@ DESCRIPTION
       foo_bar_baz_page
       foo_bar_page
       foo_page
-      index
+      root_index
+
+METHODS
+    The following methods (aside from 'handler') are meant to be overridden
+    in your subclass if you want to modify its behavoir.
 
   handler
     "handler" is the guts of DirBasedHandler. It provides the basic
-    structure of the modules, turning the request uri into an array, which
-    is then turned into possible function calls.
+    structure of the module, turning the request uri into an array, which is
+    then turned into possible function calls.
 
   init
     "init" is used to include objects or data you want to be passed into
@@ -85,8 +92,36 @@ DESCRIPTION
     and an array reference and returns and returns the name of a function to
     handle the request it's arguments describe.
 
-  index
-    "index" handles requests for $r->location, and any requests that have no
-    other functions defined to handle them. You must subclass it (or look
-    silly)
+  root_index
+    "root_index" handles requests for $r->location, and any requests that
+    have no other functions defined to handle them. You must subclass it (or
+    look silly)
+
+  set_debug
+    "set_debug" enables or disables debug output to the apache error log
+
+DEPENDENCIES
+    This module requires modperl 2 (http://perl.apache.org), and libapreq
+    (http://httpd.apache.org/apreq/) which must be installed seperately.
+
+INCOMPATIBILITIES
+    There are no known incompatibilities for this module.
+
+BUGS AND LIMITATIONS
+    There are no known bugs in this module. Please report any problems
+    through
+
+    http://rt.cpan.org/Public/Dist/Display.html?Name=Apache2-DirBasedHandler
+
+AUTHOR
+    Adam Prime (adam.prime@utoronto.ca)
+
+LICENSE AND COPYRIGHT
+    Copyright (c) 2008 by Adam Prime (adam.prime@utoronto.ca). All rights
+    reserved. This program is free software; you can redistribute it and/or
+    modify it under the same terms as Perl itself. See perlartistic.
+
+    This module is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 

@@ -7,11 +7,18 @@ our @ISA = qw(Apache2::DirBasedHandler);
 
 use Apache2::Const -compile => qw(:common);
 
-sub index {
+sub init {
+    my $self = shift;
+    Apache2::DirBasedHandler::set_debug(1);
+    return $self->SUPER::init(@_);
+}
+
+sub root_index {
     my $self = shift;
     my ($r,$uri_args,$args) = @_;
 
     if (@$uri_args) {
+        $r->warn('got uri args - ' . join( ',', @$uri_args));
         return Apache2::Const::NOT_FOUND;
     }
 
