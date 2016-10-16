@@ -1,3 +1,7 @@
+0.04. (2016-10-15) - Adam Prime <adam.prime@utoronto.ca>
+
+    - made it possible to return a 200 on a blank page.
+
 0.03. (2008-06-29) - Adam Prime <adam.prime@utoronto.ca>
 
 	- changed the debug interface to use the ::set_debug function rather than 
