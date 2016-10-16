@@ -56,9 +56,6 @@ sub handler :method {
         return $status;
     }
 
-    return Apache2::Const::NOT_FOUND
-        if !$page_out;
-
     $r->content_type($content_type);
     $r->print($page_out);
     return $status;
