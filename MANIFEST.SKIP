@@ -3,3 +3,5 @@ _build
 MANIFEST.bak
 Build$
 ^t/TEST$
+^MYMETA\.yml$
+^MYMETA\.json$

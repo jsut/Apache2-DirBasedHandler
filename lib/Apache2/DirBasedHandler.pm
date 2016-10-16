@@ -10,7 +10,7 @@ use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(:common);
 use Apache2::Request ();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 my $debug = 0;
 
 sub handler :method {
