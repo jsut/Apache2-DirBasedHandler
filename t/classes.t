@@ -5,7 +5,7 @@ use Apache::Test;
 use Apache::TestRequest;
 use Apache::TestUtil qw(t_cmp);
 
-plan tests => 8, need_lwp;
+plan tests => 10, need_lwp;
 
 base: {
     my $res = GET '/dbh/';
@@ -35,5 +35,12 @@ thingy: {
     ok( t_cmp($res->content,
               'this is $location/super/dooper and all it\'s contents', #'
               "sub request - My::Thingy" ));
+    $res = GET '/thingy/blank';
+    ok( t_cmp($res->content,
+              '', #'
+              "sub request - My::Thingy blank page" ));
+    ok( t_cmp($res->code,
+              200,
+              'blank page had 200 status'));
 }
 

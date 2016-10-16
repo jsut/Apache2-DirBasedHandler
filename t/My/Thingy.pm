@@ -51,4 +51,13 @@ sub super_dooper_page {
     );
 }
 
+sub blank_page {
+    my $self = shift;
+    my ($r,$uri_args,$args) = @_;
+
+    return (
+        Apache2::Const::OK
+    );
+}
+
 1;
